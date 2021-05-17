@@ -1,0 +1,57 @@
+---
+# tasks file for inverso.jira-docker
+
+- name: check required variables
+  assert:
+    that:
+      - jira_data_dir                 | mandatory
+      - jira_version                  | mandatory
+      - jira_jvm_min_mem              | mandatory
+      - jira_jvm_max_mem              | mandatory
+      - jira_support_recommended_args | mandatory
+      - jira_servername               | mandatory
+      - jira_service_enabled          in ['yes','no']
+      - jira_image_pull               in ['yes','no']
+  tags: ['varcheck']
+
+- name: create jira data dir on docker host
+  file:
+    path: '{{ jira_data_dir }}'
+    state: directory
+
+- name: ensure system cacerts file is also present for jira
+  copy:
+    src: '/etc/pki/java/cacerts'
+    dest: '{{ jira_data_dir }}/'
+    remote_src: yes
+
+- name: pull jira image
+  podman_image:
+    name: "{{ jira_image_registry }}{{ jira_image_registry | ternary('/','') }}{{ jira_image_name }}:{{ jira_version }}"
+  when: jira_image_pull in ['yes']
+
+- name: create jira container
+  podman_container:
+    name: 'jira'
+    hostname: 'jira'
+    image: "{{ jira_image_registry }}{{ jira_image_registry | ternary('/','') }}{{ jira_image_name }}:{{ jira_version }}"
+    state: "{{ (jira_service_enabled == 'yes') | ternary('started','stopped') }}"
+    restart_policy: on-failure
+    network_mode: host
+    volumes: '{{ jira_volumes }}'
+    env: '{{ jira_env }}'
+  register: _status_jira_container
+
+- name: ensure systemd service file is generated
+  command: podman generate systemd -t 10 --restart-policy=always -n "jira" -f
+  args:
+    chdir: /etc/systemd/system
+  register: _status_jira_service_file
+  when: _status_jira_container is changed
+
+- name: ensure jira service is updated and enabled
+  systemd:
+    name: container-jira
+    daemon_reload: yes
+    enabled: yes
+  when: _status_jira_service_file is changed

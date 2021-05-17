@@ -1,0 +1,68 @@
+---
+# defaults file for inverso.jira-docker
+
+jira_data_dir              : '/var/jira'
+jira_servername            : 'jira'
+jira_version               : 'latest'
+jira_image_registry        : ''
+jira_image_name            : 'atlassian/jira-software'
+jira_image_pull            : 'no'
+
+jira_service_enabled       : 'yes'
+
+jira_jvm_min_mem           : '2048m'
+jira_jvm_max_mem           : '3072m'
+jira_webappcontextpath     : '/jira'
+
+jira_proxy_configure       : False
+jira_proxy_name            : 'corporate-proxy'
+jira_proxy_port            : '8080'
+jira_proxy_nonProxyHosts   : 'localhost\|127.0.0.1\|{{ ansible_default_ipv4.address }}'
+
+jira_env_default:
+  LANG: 'de_DE.utf8'
+  JVM_MINIMUM_MEMORY: '{{ jira_jvm_min_mem }}'
+  JVM_MAXIMUM_MEMORY: '{{ jira_jvm_max_mem }}'
+  JVM_SUPPORT_RECOMMENDED_ARGS: "{{ jira_support_recommended_args | replace('\n', ' ') }}"
+  ATL_TOMCAT_CONTEXT_PATH: '{{ jira_webappcontextpath }}'
+  ATL_PROXY_NAME: '{{ jira_revproxy_name }}'
+  ATL_PROXY_PORT: '{{ jira_revproxy_port }}'
+  ATL_TOMCAT_SCHEME: '{{ jira_revproxy_scheme }}'
+  ATL_TOMCAT_CONTEXTPATH: '{{ jira_webappcontextpath }}'
+  ATL_TOMCAT_SECURE: '{{ jira_revproxy_secure }}'
+
+jira_env: '{{ jira_env_default }}'
+
+jira_volumes_default:
+  - '{{ jira_data_dir }}:/var/atlassian/application-data/jira'
+#  - '/etc/timezone:/etc/timezone:ro'
+
+jira_volumes: '{{ jira_volumes_default }}'
+
+
+# todo implement jmx
+# jira jmx settings
+# 
+# jira_jmx_configure                : no # yes | no | absent
+# jira_jmx_user                     : '{{ jira_user }}' # will be also the jmx password
+# jira_jmx_port                     : 8099
+# jira_jmx_args                     : '-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{ jira_jmx_port }} -Dcom.sun.management.jmxremote.authenticate=true -Dcom.sun.management.jmxremote.password.file=/home/{{ jira_jmx_user }}/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/home/{{ jira_jmx_user }}/jmxremote.access -Dcom.sun.management.jmxremote.ssl=false'
+
+jira_support_recommended_args: |
+  -Djavax.net.ssl.trustStore=/var/atlassian/application-data/jira/cacerts
+  -Djavax.net.ssl.keyStore=/var/atlassian/application-data/jira/cacerts
+  -Djdk.tls.trustNameService=true
+  -Djira.context.path={{ jira_webappcontextpath }}
+  -Duser.timezone=Europe/Berlin
+  -Duser.region=DE
+  -Duser.country=DE
+  -Duser.language=de
+#  -Dhttp.proxyHost={{ jira_proxy_name }} -Dhttp.proxyPort={{ jira_proxy_port }} 
+#  -Dhttp.nonProxyHosts={{ jira_proxy_nonProxyHosts }}
+#  -Dhttps.proxyHost={{ jira_proxy_name }} -Dhttps.proxyPort={{ jira_proxy_port }} 
+#  -Dhttps.nonProxyHosts={{ jira_proxy_nonProxyHosts }}
+
+jira_revproxy_name         : '{{ jira_servername }}'
+jira_revproxy_port         : '443'
+jira_revproxy_scheme       : 'https'
+jira_revproxy_secure       : 'true'
