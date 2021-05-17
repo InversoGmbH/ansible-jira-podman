@@ -16,7 +16,7 @@ A description of the settable variables for this role should go here, including 
 Dependencies
 ------------
 
-- inverso.postgresql
+- inverso.postgresql-v2
 
 Example Playbook
 ----------------
@@ -25,7 +25,7 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: servers
       roles:
-         - role: inverso.jira-docker
+         - role: inverso.jira-podman
            jira_servername: 'jira.domain.local'
            jira_version: '8.1.0'
            jira_webappcontextpath: '/jira'
