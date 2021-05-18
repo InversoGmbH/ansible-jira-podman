@@ -4,6 +4,7 @@
 - name: check required variables
   assert:
     that:
+      - jira_image_name               | mandatory
       - jira_data_dir                 | mandatory
       - jira_version                  | mandatory
       - jira_jvm_min_mem              | mandatory
@@ -13,6 +14,22 @@
       - jira_service_enabled          in ['yes','no']
       - jira_image_pull               in ['yes','no']
   tags: ['varcheck']
+
+- name: show config environment
+  debug:
+    var: _environment
+  vars:
+    _environment:
+      jira_servername: '{{ jira_servername }}'
+      jira_image_name: '{{ jira_image_name }}'
+      jira_version: '{{ jira_version }}'
+      jira_data_dir: '{{ jira_data_dir }}'
+      jira_jvm_min_mem: '{{ jira_jvm_min_mem }}'
+      jira_jvm_max_mem: '{{ jira_jvm_max_mem }}'
+      jira_support_recommended_args: '{{ jira_support_recommended_args }}'
+      jira_service_enabled: '{{ jira_service_enabled }}'
+      jira_image_registry: "{{ jira_image_registry |('not set') }}"
+      jira_webappcontextpath: '{{ jira_webappcontextpath }}'
 
 - name: create jira data dir on docker host
   file:
