@@ -1,5 +1,5 @@
 ---
-# tasks file for inverso.jira-docker
+# tasks file for inverso.jira-podman
 
 - name: check required variables
   assert:

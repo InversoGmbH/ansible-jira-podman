@@ -1,5 +1,5 @@
 ---
-# defaults file for inverso.jira-docker
+# defaults file for inverso.jira-podman
 
 jira_data_dir              : '/var/jira'
 jira_servername            : 'jira'
