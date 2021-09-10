@@ -28,7 +28,7 @@
       jira_jvm_max_mem: '{{ jira_jvm_max_mem }}'
       jira_support_recommended_args: '{{ jira_support_recommended_args }}'
       jira_service_enabled: '{{ jira_service_enabled }}'
-      jira_image_registry: "{{ jira_image_registry |('not set') }}"
+      jira_image_registry: "{{ jira_image_registry | default('not set') }}"
       jira_webappcontextpath: '{{ jira_webappcontextpath }}'
 
 - name: create jira data dir on docker host
