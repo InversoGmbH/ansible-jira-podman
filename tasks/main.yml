@@ -44,8 +44,10 @@
 
 - name: pull jira image
   podman_image:
-    name: "{{ jira_image_registry }}{{ jira_image_registry | ternary('/','') }}{{ jira_image_name }}:{{ jira_version }}"
-  when: jira_image_pull in ['yes']
+    name: "{{ jira_image_registry }}{{ jira_image_registry | ternary('/','') }}{{ jira_image_name }}"
+    tag: "{{ jira_version }}"
+    force: "{{ jira_image_pull | default('no') }}"
+  register: _state_podman_image
 
 - name: create jira container
   podman_container:
@@ -53,11 +55,14 @@
     hostname: 'jira'
     image: "{{ jira_image_registry }}{{ jira_image_registry | ternary('/','') }}{{ jira_image_name }}:{{ jira_version }}"
     state: "{{ (jira_service_enabled == 'yes') | ternary('started','stopped') }}"
+    recreate: "{{ _recreate_container | default('no') }}"
     restart_policy: on-failure
     network_mode: host
     volumes: '{{ jira_volumes }}'
     env: '{{ jira_env }}'
   register: _status_jira_container
+  vars:
+    _recreate_container: "{{ _state_podman_image is changed | ternary('yes','no') }}"
 
 - name: ensure systemd service file is generated
   command: podman generate systemd -t 10 --restart-policy=always -n "jira" -f
