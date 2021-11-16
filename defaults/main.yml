@@ -67,4 +67,4 @@ jira_revproxy_port         : '443'
 jira_revproxy_scheme       : 'https'
 jira_revproxy_secure       : 'true'
 
-log_driver: 'journald'
+jira_log_driver: 'journald'
