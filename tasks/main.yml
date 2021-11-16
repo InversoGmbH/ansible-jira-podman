@@ -60,6 +60,7 @@
     network_mode: host
     volumes: '{{ jira_volumes }}'
     env: '{{ jira_env }}'
+    log_driver: '{{ jira_log_driver }}'
   register: _status_jira_container
   vars:
     _recreate_container: "{{ _state_podman_image is changed | ternary('yes','no') }}"
